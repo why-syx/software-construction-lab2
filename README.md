@@ -35,7 +35,7 @@ mvn compile exec:java
 
 # 或者直接运行编译产物
 mvn -q compile
-java -cp target/classes com.exercise.ui.ConsoleApp
+java -cp target/classes com.exercise.ui.Main
 ```
 
 控制台主菜单：
@@ -66,7 +66,7 @@ java -cp target/classes com.exercise.ui.ConsoleApp
 │   ├── format/       ExerciseFormatter, ConsoleTableFormatter
 │   ├── export/       ExerciseExporter, CsvExporter, ExportConfig
 │   ├── validation/   InputValidator, InputValidationException
-│   └── ui/           ConsoleApp, InputReader, InputClosedException
+│   └── ui/           Main, ConsoleApp, InputReader, InputClosedException
 ├── src/test/java/com/exercise/      JUnit 5 测试（9 个测试类，111 个用例）
 └── docs/
     ├── class_diagram.puml           完整 UML 类图源文件
@@ -84,6 +84,7 @@ java -cp target/classes com.exercise.ui.ConsoleApp
 ### 4.1 分层与依赖方向
 
 ```
+入口    Main（组合根）──创建并注入──▶ ConsoleApp
 交互层  ConsoleApp ──依赖──▶ ExerciseGenerator / ExerciseFormatter / ExerciseExporter（接口）
                      │
 生成层  RandomExerciseGenerator ──▶ Equation（抽象）
@@ -92,7 +93,7 @@ java -cp target/classes com.exercise.ui.ConsoleApp
 ```
 
 依赖只指向抽象：`ConsoleApp` 不知道题目是随机生成的，也不知道导出的是 CSV；具体实现由
-`main` 统一装配。
+独立的 `Main` 组合根统一装配。
 
 ### 4.2 单一职责原则（SRP）
 
@@ -181,7 +182,8 @@ BUILD SUCCESS
 
 ## 八、实验报告与提交物
 
-- 实验报告：`542413320648吴昊阳/542413320648 吴昊阳-实验 2.docx`
+- 实验报告：`542413320648吴昊阳/542413320648 吴昊阳-实验 2.docx`（Word 版）
+  与 `542413320648 吴昊阳-实验 2.doc`（按课程模板转换的 .doc 版）
 - 源码压缩包：`542413320648吴昊阳/542413320648 吴昊阳-实验 2.rar`（仅含 `src/` 与 `pom.xml`）
 - 完整 UML：`docs/uml_class_diagram.png`、`docs/uml_class_diagram_full.png`
 

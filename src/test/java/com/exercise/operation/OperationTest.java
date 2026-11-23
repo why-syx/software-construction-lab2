@@ -35,12 +35,13 @@ class OperationTest {
     }
 
     @Test
-    @DisplayName("减法：普通值与负数结果")
+    @DisplayName("减法：普通值、负数结果与整数溢出")
     void subtractionComputesCorrectly() {
         assertEquals(2, Operations.SUBTRACT.apply(5, 3));
         assertEquals(98, Operations.SUBTRACT.apply(99, 1));
         assertEquals(0, Operations.SUBTRACT.apply(1, 1));
         assertEquals(-4, Operations.SUBTRACT.apply(2, 6));
+        assertThrows(ArithmeticException.class, () -> Operations.SUBTRACT.apply(Integer.MIN_VALUE, 1));
     }
 
     @Test

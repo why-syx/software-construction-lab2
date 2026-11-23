@@ -108,10 +108,11 @@ class InputValidatorTest {
     }
 
     @Test
-    @DisplayName("非法路径字符被拒绝")
+    @DisplayName("非法路径字符被拒绝（NUL 在所有平台都非法）")
     void rejectsIllegalPathCharacters() {
+        String invalidName = "a" + (char) 0 + "b.csv";
         InputValidationException exception = assertThrows(InputValidationException.class,
-                () -> InputValidator.normalizeCsvFileName("a?b.csv"));
+                () -> InputValidator.normalizeCsvFileName(invalidName));
         assertTrue(exception.getMessage().contains("不合法"));
     }
 
@@ -129,7 +130,7 @@ class InputValidatorTest {
     void rejectsInvalidFileNames() {
         assertThrows(InputValidationException.class, () -> InputValidator.normalizeCsvFileName(""));
         assertThrows(InputValidationException.class, () -> InputValidator.normalizeCsvFileName("   "));
-        assertThrows(InputValidationException.class, () -> InputValidator.normalizeCsvFileName("D:\\"));
+        assertThrows(InputValidationException.class, () -> InputValidator.normalizeCsvFileName("/"));
         assertThrows(InputValidationException.class, () -> InputValidator.normalizeCsvFileName(".."));
         assertTrue(assertThrows(InputValidationException.class,
                 () -> InputValidator.normalizeCsvFileName("abc.")).getMessage().contains("不能以点或空格结尾"));

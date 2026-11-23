@@ -40,14 +40,17 @@ public final class ExpressionCanonicalizer {
         if (expression instanceof ConstantExpression constant) {
             return Integer.toString(constant.value());
         }
-        BinaryExpression binary = (BinaryExpression) expression;
-        if (binary.operation().isCommutative() && binary.operation().isAssociative()) {
-            List<String> parts = new ArrayList<>();
-            flattenCommutativeChain(binary, binary.operation(), parts);
-            Collections.sort(parts);
-            return "(" + String.join(binary.operation().symbol(), parts) + ")";
+        if (expression instanceof BinaryExpression binary) {
+            if (binary.operation().isCommutative() && binary.operation().isAssociative()) {
+                List<String> parts = new ArrayList<>();
+                flattenCommutativeChain(binary, binary.operation(), parts);
+                Collections.sort(parts);
+                return "(" + String.join(binary.operation().symbol(), parts) + ")";
+            }
+            return "(" + canonicalize(binary.left()) + binary.operation().symbol()
+                    + canonicalize(binary.right()) + ")";
         }
-        return "(" + canonicalize(binary.left()) + binary.operation().symbol() + canonicalize(binary.right()) + ")";
+        throw new IllegalArgumentException("不支持的表达式类型：" + expression.getClass().getName());
     }
 
     /**

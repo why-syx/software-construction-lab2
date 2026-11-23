@@ -19,7 +19,8 @@ public interface ExerciseFormatter {
      * @param columns       每行列数
      * @param includeAnswer 是否在每道题后显示答案
      * @return 排版后的文本；题目列表为空时返回空字符串
-     * @throws IllegalArgumentException 列数越界或题目列表为空引用时抛出
+     * @throws NullPointerException 题目列表为空引用时抛出
+     * @throws IllegalArgumentException 列数越界时抛出
      */
     String format(List<Equation> equations, int columns, boolean includeAnswer);
 }

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -40,13 +39,13 @@ class ConsoleAppTest {
     @DisplayName("正常流程：设置数量、列数、文件名并生成导出")
     void normalFlowGeneratesAndExports() throws IOException {
         Path target = tempDir.resolve("exercises.csv");
-        String script = "1\n30\n2\n5\n3\n" + target + "\n4\n6\n0\n";
+        String script = "1\n7\n2\n3\n3\n" + target + "\n4\n6\n0\n";
         String output = run(script, new RandomExerciseGenerator(new Random(2026)));
 
-        assertTrue(output.contains("题目数量已设置为 30 道"));
-        assertTrue(output.contains("每行列数已设置为 5 列"));
-        assertTrue(output.contains("已生成 30 道不重复的练习题"));
-        assertTrue(output.contains("已导出 30 道题"));
+        assertTrue(output.contains("题目数量已设置为 7 道"));
+        assertTrue(output.contains("每行列数已设置为 3 列"));
+        assertTrue(output.contains("已生成 7 道不重复的练习题"));
+        assertTrue(output.contains("已导出 7 道题"));
         assertTrue(output.contains("感谢使用，再见！"));
         assertTrue(Files.exists(target));
 
@@ -54,6 +53,17 @@ class ConsoleAppTest {
         assertEquals((byte) 0xEF, bytes[0]);
         assertEquals((byte) 0xBB, bytes[1]);
         assertEquals((byte) 0xBF, bytes[2]);
+
+        // 7 道题、每行 3 列 => 3 行，最后一列不足；借此验证列数确实生效
+        String content = Files.readString(target, StandardCharsets.UTF_8);
+        if (content.startsWith("﻿")) {
+            content = content.substring(1);
+        }
+        String[] lines = content.split("\\r\\n", -1);
+        assertEquals(4, lines.length, "3 行内容加一个结尾空串");
+        assertEquals(3, lines[0].split(",", -1).length);
+        assertEquals(3, lines[1].split(",", -1).length);
+        assertEquals(1, lines[2].split(",", -1).length);
     }
 
     @Test
@@ -89,7 +99,8 @@ class ConsoleAppTest {
     @Test
     @DisplayName("非法文件名被拒绝后可使用默认文件名")
     void invalidFileNameFallsBackToDefault() {
-        String output = run("3\na?b.csv\n\n0\n", new RandomExerciseGenerator(new Random(1)));
+        String invalidName = "bad" + (char) 0 + "name.csv";
+        String output = run("3\n" + invalidName + "\n\n0\n", new RandomExerciseGenerator(new Random(1)));
         assertTrue(output.contains("[输入有误]"));
         assertTrue(output.contains("文件名或路径不合法"));
         assertTrue(output.contains("导出文件名已设置为 exercises.csv"));
@@ -131,14 +142,15 @@ class ConsoleAppTest {
         StubFormatter formatter = new StubFormatter();
         RecordingExporter exporter = new RecordingExporter(tempDir.resolve("stub.csv"));
 
-        String output = runWith("4\n5\n6\n0\n", generator, exporter, formatter);
+        String output = runWith("1\n7\n2\n3\n7\n4\n5\n6\n0\n", generator, exporter, formatter);
 
         assertEquals(1, generator.calls, "生成器应只被调用一次");
+        assertEquals(7, generator.lastCount, "交互层应把用户设置的题量传给生成器");
         assertTrue(output.contains("FAKE_TABLE"));
         assertEquals(1, exporter.calls, "导出器应被调用一次");
         assertEquals(List.of(fixed), exporter.exported);
-        assertEquals(5, exporter.config.columns());
-        assertFalse(exporter.config.includeAnswer());
+        assertEquals(3, exporter.config.columns());
+        assertTrue(exporter.config.includeAnswer(), "切换答案后导出参数应为 true");
     }
 
     /**
@@ -175,6 +187,7 @@ class ConsoleAppTest {
     private static final class StubGenerator implements ExerciseGenerator {
         private final List<Equation> equations;
         private int calls;
+        private int lastCount;
 
         private StubGenerator(List<Equation> equations) {
             this.equations = new ArrayList<>(equations);
@@ -183,6 +196,7 @@ class ConsoleAppTest {
         @Override
         public List<Equation> generate(int count) {
             calls++;
+            lastCount = count;
             return List.copyOf(equations);
         }
     }

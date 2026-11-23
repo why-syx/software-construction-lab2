@@ -38,7 +38,8 @@ public final class ThreeOperandEquation extends Equation {
      * @param third           第三个数，必须为 1~99
      * @param firstOperation  第一个运算符，不能为空
      * @param secondOperation 第二个运算符，不能为空
-     * @throws IllegalArgumentException 操作数越界、运算符为空、除法不能整除
+     * @throws NullPointerException 任一运算符为空时抛出
+     * @throws IllegalArgumentException 操作数越界、除法不能整除，
      *                                  或出现越界的中间结果/最终结果时抛出
      */
     public ThreeOperandEquation(int first, int second, int third,

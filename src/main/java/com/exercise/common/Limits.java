@@ -11,20 +11,31 @@ package com.exercise.common;
  */
 public final class Limits {
 
+    /** 数值上界（开区间上界，即 100 本身不合法）。 */
+    public static final int UPPER_BOUND = 100;
+
     /** 操作数的最小值（正整数）。 */
     public static final int MIN_OPERAND = 1;
 
-    /** 操作数的最大值（严格小于 100）。 */
-    public static final int MAX_OPERAND = 99;
+    /** 操作数的最大值（严格小于 100，由 UPPER_BOUND 推导）。 */
+    public static final int MAX_OPERAND = UPPER_BOUND - 1;
 
-    /** 数值上界（开区间上界，即 100 本身不合法）。 */
-    public static final int UPPER_BOUND = 100;
+    /**
+     * 生成器使用的最小操作数。
+     *
+     * <p>取 2 而不是 1，是为了避免 {@code 62 * 1 * 1}、{@code 35 / 1} 这类
+     * 缺乏练习价值的平凡题目；模型层仍然允许 1，以便手工构造边界测试。</p>
+     */
+    public static final int MIN_GENERATED_OPERAND = 2;
 
     /** 排版时每行允许的最小列数。 */
     public static final int MIN_COLUMNS = 1;
 
     /** 排版时每行允许的最大列数。 */
     public static final int MAX_COLUMNS = 10;
+
+    /** 生成器允许的最小题目数量。 */
+    public static final int MIN_GENERATE_COUNT = 1;
 
     /** 控制台允许用户设置的最小题目数量。 */
     public static final int MIN_UI_COUNT = 1;
@@ -46,6 +57,6 @@ public final class Limits {
      * @return {@code true} 表示合法
      */
     public static boolean isInRange(int value) {
-        return value > 0 && value < UPPER_BOUND;
+        return value >= MIN_OPERAND && value < UPPER_BOUND;
     }
 }

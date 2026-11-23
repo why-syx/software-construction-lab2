@@ -25,7 +25,8 @@ public final class TwoOperandEquation extends Equation {
      * @param left      左操作数，必须为 1~99
      * @param right     右操作数，必须为 1~99
      * @param operation 运算符，不能为空
-     * @throws IllegalArgumentException 操作数越界、运算符为空或运算结果不合法时抛出
+     * @throws NullPointerException 运算符为空时抛出
+     * @throws IllegalArgumentException 操作数越界或运算结果不合法时抛出
      */
     public TwoOperandEquation(int left, int right, Operation operation) {
         super(buildExpression(left, right, operation));

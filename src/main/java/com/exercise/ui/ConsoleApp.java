@@ -2,19 +2,15 @@ package com.exercise.ui;
 
 import com.exercise.common.Limits;
 import com.exercise.equation.Equation;
-import com.exercise.export.CsvExporter;
 import com.exercise.export.ExerciseExporter;
 import com.exercise.export.ExportConfig;
-import com.exercise.format.ConsoleTableFormatter;
 import com.exercise.format.ExerciseFormatter;
 import com.exercise.generator.ExerciseGenerationException;
 import com.exercise.generator.ExerciseGenerator;
-import com.exercise.generator.RandomExerciseGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +22,7 @@ import java.util.Objects;
  *
  * <p>本类只依赖 {@link ExerciseGenerator}、{@link ExerciseExporter}、
  * {@link ExerciseFormatter} 三个抽象接口，而不依赖任何具体实现，体现了依赖倒转原则：
- * {@link #main(String[])} 负责把具体实现注入进来，业务代码完全不知道
+ * 具体实现由独立的组合根 {@link Main} 创建并注入，业务代码完全不知道
  * "题目是随机生成的"还是"导出的是 CSV"。</p>
  *
  * <p>所有用户输入都经过 {@link InputReader} 的统一校验与重试，因此本类收到的
@@ -75,22 +71,6 @@ public final class ConsoleApp {
         Objects.requireNonNull(in, "输入流不能为空");
         this.out = Objects.requireNonNull(out, "输出流不能为空");
         this.input = new InputReader(in, out);
-    }
-
-    /**
-     * 程序入口：装配具体实现并启动交互循环。
-     *
-     * @param args 命令行参数（本程序不使用）
-     */
-    public static void main(String[] args) {
-        PrintStream utf8Out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        ConsoleApp app = new ConsoleApp(
-                new RandomExerciseGenerator(),
-                new CsvExporter(),
-                new ConsoleTableFormatter(),
-                System.in,
-                utf8Out);
-        app.run();
     }
 
     /**

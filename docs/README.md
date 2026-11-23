@@ -6,7 +6,7 @@
 
 | 文件 | 说明 |
 | --- | --- |
-| `class_diagram.puml` | 完整 UML 类图源文件（PlantUML，含全部 28 个类/接口/异常） |
+| `class_diagram.puml` | 完整 UML 类图源文件（PlantUML，含全部 29 个类/接口/异常） |
 | `uml_model.puml` | 模型层分图源文件（运算符、表达式、算式） |
 | `uml_service.puml` | 服务与交互层分图源文件（生成、排版、导出、界面） |
 | `class_diagram.mmd` | Mermaid 版本，便于在 GitHub/Gitee 直接预览 |
@@ -32,6 +32,7 @@ PlantUML 使用纯 Java 的 Smetana 布局引擎（`!pragma layout smetana`）�
 | `junit-test.txt` | `mvn clean test` 完整输出（111 个用例全部通过） |
 | `exercises.csv` | 样例导出文件（UTF-8 带 BOM，5 列） |
 | `csv-preview.pdf` | 用 Excel 打开 `exercises.csv` 后导出的预览 PDF |
+| `report-preview.pdf` | 实验报告转出的 PDF，用于检查分页、图注与表格版式 |
 
 ## 截图（screenshots/）
 

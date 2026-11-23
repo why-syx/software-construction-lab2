@@ -51,12 +51,15 @@ class ExportConfig <<record>> {
   +includeAnswer : boolean
 }
 
+class Main <<入口>> {
+  +main(args) : void
+}
+
 class ConsoleApp {
   -generator : ExerciseGenerator
   -exporter : ExerciseExporter
   -formatter : ExerciseFormatter
   +run() : void
-  +main(args) : void
 }
 
 class InputReader {
@@ -78,6 +81,7 @@ ExerciseGenerator <|.. RandomExerciseGenerator
 ExerciseFormatter <|.. ConsoleTableFormatter
 ExerciseExporter <|.. CsvExporter
 
+Main ..> ConsoleApp : 创建并注入
 ConsoleApp *-- InputReader : 构造并持有
 ConsoleApp --> ExerciseGenerator : 依赖抽象
 ConsoleApp --> ExerciseExporter : 依赖抽象
@@ -94,7 +98,13 @@ ConsoleTableFormatter ..> Equation : 读取题目
 note right of ConsoleApp
   依赖倒转原则（DIP）：
   只依赖三个抽象接口，
-  具体实现由 main 注入。
+  具体实现由 Main 组合根注入。
+end note
+
+note right of Main
+  组合根：实例化 RandomExerciseGenerator、
+  CsvExporter、ConsoleTableFormatter，
+  再以接口类型注入 ConsoleApp。
 end note
 
 @enduml

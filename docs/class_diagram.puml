@@ -179,6 +179,10 @@ package "com.exercise.validation" #F8FAFD {
 }
 
 package "com.exercise.ui" #F8FAFD {
+  class Main <<入口>> {
+    +main(args : String[]) : void
+  }
+
   class ConsoleApp {
     -generator : ExerciseGenerator
     -exporter : ExerciseExporter
@@ -187,7 +191,6 @@ package "com.exercise.ui" #F8FAFD {
     -columns : int
     -fileName : String
     +run() : void
-    +main(args : String[]) : void
   }
 
   class InputReader {
@@ -240,6 +243,10 @@ CsvExporter ..> ExportConfig : 导出参数
 ConsoleApp ..> Equation : 持有题目列表
 ConsoleApp ..> ExportConfig : 导出参数
 ConsoleApp ..> InputClosedException : 捕获
+Main ..> ConsoleApp : 创建
+Main ..> RandomExerciseGenerator : 实例化
+Main ..> CsvExporter : 实例化
+Main ..> ConsoleTableFormatter : 实例化
 InputReader ..> InputValidator : 委托校验
 InputReader ..> InputClosedException : 抛出
 InputValidator ..> InputValidationException : 抛出
@@ -248,7 +255,7 @@ note right of ConsoleApp
   依赖倒转原则（DIP）：
   只依赖 ExerciseGenerator / ExerciseExporter /
   ExerciseFormatter 三个抽象接口，
-  具体实现由 main 注入。
+  具体实现由 Main 组合根注入。
 end note
 
 note bottom of Equation

@@ -1,6 +1,16 @@
 classDiagram
     direction LR
 
+    namespace com.exercise.common {
+        class Limits {
+            <<utility>>
+            +int MIN_OPERAND
+            +int MAX_OPERAND
+            +int UPPER_BOUND
+            +isInRange(value) boolean
+        }
+    }
+
     namespace com.exercise.operation {
         class Operation {
             <<interface>>
@@ -132,12 +142,15 @@ classDiagram
     }
 
     namespace com.exercise.ui {
+        class Main {
+            <<entry>>
+            +main(args) void
+        }
         class ConsoleApp {
             -ExerciseGenerator generator
             -ExerciseExporter exporter
             -ExerciseFormatter formatter
             +run() void
-            +main(args) void
         }
         class InputReader {
             +readInt(prompt, min, max) int
@@ -169,13 +182,19 @@ classDiagram
 
     BinaryExpression ..> Operation
     Equation ..> ExpressionCanonicalizer
+    Equation ..> Limits
     RandomExerciseGenerator ..> Equation
     RandomExerciseGenerator ..> Operations
+    RandomExerciseGenerator ..> Limits
     CsvExporter ..> Equation
     CsvExporter ..> ExportConfig
     ConsoleApp ..> ExerciseGenerator
     ConsoleApp ..> ExerciseExporter
     ConsoleApp ..> ExerciseFormatter
     ConsoleApp ..> ExportConfig
+    Main ..> ConsoleApp
+    Main ..> RandomExerciseGenerator
+    Main ..> CsvExporter
+    Main ..> ConsoleTableFormatter
     InputReader ..> InputValidator
     Operations ..> Operation

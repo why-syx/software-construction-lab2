@@ -72,18 +72,20 @@ class EquationTest {
     }
 
     @Test
-    @DisplayName("中间结果为 0 时构造函数抛出异常")
+    @DisplayName("中间结果为 0 时构造函数抛出异常（最终结果本身合法）")
     void zeroIntermediateResultRejected() {
+        // 1 - 1 = 0（越界），0 + 1 = 1（最终结果合法），用于隔离“中间结果”校验
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new ThreeOperandEquation(1, 1, 1, SUBTRACT, ADD));
         assertTrue(exception.getMessage().contains("超出 (0, 100)"));
     }
 
     @Test
-    @DisplayName("中间结果为负数时构造函数抛出异常")
+    @DisplayName("中间结果为负数时构造函数抛出异常（最终结果本身合法）")
     void negativeIntermediateResultRejected() {
+        // 1 - 3 = -2（越界），-2 + 4 = 2（最终结果合法）
         assertThrows(IllegalArgumentException.class,
-                () -> new ThreeOperandEquation(1, 2, 1, SUBTRACT, ADD));
+                () -> new ThreeOperandEquation(1, 3, 4, SUBTRACT, ADD));
     }
 
     @Test
@@ -101,17 +103,19 @@ class EquationTest {
     }
 
     @Test
-    @DisplayName("中间结果达到 100 时构造函数抛出异常")
+    @DisplayName("中间结果达到 100 时构造函数抛出异常（最终结果为 99，本身合法）")
     void upperBoundIntermediateRejected() {
+        // 50 + 50 = 100（越界），100 - 1 = 99（最终结果合法）
         assertThrows(IllegalArgumentException.class,
-                () -> new ThreeOperandEquation(50, 49, 1, ADD, ADD));
+                () -> new ThreeOperandEquation(50, 50, 1, ADD, SUBTRACT));
     }
 
     @Test
-    @DisplayName("最终结果达到 100 时构造函数抛出异常")
+    @DisplayName("最终结果达到 100 时构造函数抛出异常（中间结果为 98，本身合法）")
     void upperBoundFinalRejected() {
+        // 49 + 49 = 98（合法），98 + 2 = 100（越界）
         assertThrows(IllegalArgumentException.class,
-                () -> new ThreeOperandEquation(99, 1, 1, ADD, ADD));
+                () -> new ThreeOperandEquation(49, 49, 2, ADD, ADD));
     }
 
     @Test

@@ -59,9 +59,10 @@ public final class RandomExerciseGenerator implements ExerciseGenerator {
 
     @Override
     public List<Equation> generate(int count) {
-        if (count < Limits.MIN_UI_COUNT || count > Limits.MAX_GENERATE_COUNT) {
+        if (count < Limits.MIN_GENERATE_COUNT || count > Limits.MAX_GENERATE_COUNT) {
             throw new IllegalArgumentException(
-                    "题目数量必须在 " + Limits.MIN_UI_COUNT + "~" + Limits.MAX_GENERATE_COUNT + " 之间，当前为 " + count);
+                    "题目数量必须在 " + Limits.MIN_GENERATE_COUNT + "~" + Limits.MAX_GENERATE_COUNT
+                            + " 之间，当前为 " + count);
         }
 
         Set<Equation> unique = new LinkedHashSet<>();
@@ -137,25 +138,27 @@ public final class RandomExerciseGenerator implements ExerciseGenerator {
      * @return 两个操作数组成的数组 {@code {x, y}}
      */
     private int[] sampleInnerPair(Operation operation) {
+        int max = Limits.MAX_OPERAND;
+        int min = Limits.MIN_GENERATED_OPERAND;
         switch (operation.symbol()) {
             case "+": {
-                int x = 2 + random.nextInt(96);           // 2~97
-                int y = 2 + random.nextInt(98 - x);       // 2~(99-x)
+                int x = min + random.nextInt(max - min - 1);       // 2~97
+                int y = min + random.nextInt(max - 1 - x);         // 2~(99-x)
                 return new int[]{x, y};
             }
             case "-": {
-                int x = 4 + random.nextInt(96);           // 4~99
-                int y = 2 + random.nextInt(x - 3);        // 2~(x-2)，保证结果 >= 2
+                int x = min + 2 + random.nextInt(max - 3);         // 4~99
+                int y = min + random.nextInt(x - min - 1);         // 2~(x-2)，保证结果 >= 2
                 return new int[]{x, y};
             }
             case "*": {
-                int x = 2 + random.nextInt(48);           // 2~49
-                int y = 2 + random.nextInt(99 / x - 1);   // 2~(99/x)
+                int x = min + random.nextInt(max / 2 - 1);         // 2~49
+                int y = min + random.nextInt(max / x - 1);         // 2~(99/x)
                 return new int[]{x, y};
             }
             case "/": {
-                int divisor = 2 + random.nextInt(48);     // 2~49
-                int quotient = 2 + random.nextInt(99 / divisor - 1); // 2~(99/divisor)
+                int divisor = min + random.nextInt(max / 2 - 1);   // 2~49
+                int quotient = min + random.nextInt(max / divisor - 1); // 2~(99/divisor)
                 return new int[]{divisor * quotient, divisor};
             }
             default:
@@ -171,17 +174,19 @@ public final class RandomExerciseGenerator implements ExerciseGenerator {
      * @return 合法的右操作数；不存在时返回 {@code null}
      */
     private Integer sampleRightOperand(Operation operation, int inner) {
+        int max = Limits.MAX_OPERAND;
+        int min = Limits.MIN_GENERATED_OPERAND;
         switch (operation.symbol()) {
             case "+": {
-                int limit = 99 - inner;
-                return limit >= 2 ? 2 + random.nextInt(limit - 1) : null;
+                int limit = max - inner;
+                return limit >= min ? min + random.nextInt(limit - 1) : null;
             }
             case "-": {
-                return inner >= 3 ? 2 + random.nextInt(inner - 2) : null;
+                return inner >= min + 1 ? min + random.nextInt(inner - min) : null;
             }
             case "*": {
-                int limit = 99 / inner;
-                return limit >= 2 ? 2 + random.nextInt(limit - 1) : null;
+                int limit = max / inner;
+                return limit >= min ? min + random.nextInt(limit - 1) : null;
             }
             case "/": {
                 List<Integer> divisors = collectProperDivisors(inner);
@@ -200,26 +205,28 @@ public final class RandomExerciseGenerator implements ExerciseGenerator {
      * @return 合法的左操作数；不存在时返回 {@code null}
      */
     private Integer sampleLeftOperand(Operation operation, int inner) {
+        int max = Limits.MAX_OPERAND;
+        int min = Limits.MIN_GENERATED_OPERAND;
         switch (operation.symbol()) {
             case "+": {
-                int limit = 99 - inner;
-                return limit >= 2 ? 2 + random.nextInt(limit - 1) : null;
+                int limit = max - inner;
+                return limit >= min ? min + random.nextInt(limit - 1) : null;
             }
             case "-": {
                 // 需要 inner + 2 <= a <= 99，保证结果至少为 2
-                if (inner > 97) {
+                if (inner > max - 2) {
                     return null;
                 }
-                return inner + 2 + random.nextInt(98 - inner);
+                return inner + min + random.nextInt(max - 1 - inner);
             }
             case "*": {
-                int limit = 99 / inner;
-                return limit >= 2 ? 2 + random.nextInt(limit - 1) : null;
+                int limit = max / inner;
+                return limit >= min ? min + random.nextInt(limit - 1) : null;
             }
             case "/": {
-                // 需要 a 是 inner 的 integer 倍，且 a <= 99
-                int limit = 99 / inner;
-                return limit >= 2 ? inner * (2 + random.nextInt(limit - 1)) : null;
+                // 需要 a 是 inner 的整数倍，且 a <= 99
+                int limit = max / inner;
+                return limit >= min ? inner * (min + random.nextInt(limit - 1)) : null;
             }
             default:
                 throw new IllegalArgumentException("未知运算符：" + operation.symbol());
@@ -234,7 +241,7 @@ public final class RandomExerciseGenerator implements ExerciseGenerator {
      */
     private static List<Integer> collectProperDivisors(int value) {
         List<Integer> divisors = new ArrayList<>();
-        for (int candidate = 2; candidate <= value / 2; candidate++) {
+        for (int candidate = Limits.MIN_GENERATED_OPERAND; candidate <= value / 2; candidate++) {
             if (value % candidate == 0) {
                 divisors.add(candidate);
             }

@@ -37,7 +37,9 @@ public abstract class Equation {
      * 构造算式并立即校验数值红线。
      *
      * @param expression 算式表达式，不能为空
-     * @throws IllegalArgumentException 表达式为空、存在无定义运算或出现越界值时抛出
+     * @throws NullPointerException 表达式为空引用时抛出
+     * @throws IllegalArgumentException 存在无定义运算、出现越界值或表达式类型不受支持时抛出；
+     *                                  运算层因除零/不能整除抛出的 ArithmeticException 会作为 cause 保留
      */
     protected Equation(Expression expression) {
         this.expression = Objects.requireNonNull(expression, "算式表达式不能为空");
@@ -67,7 +69,8 @@ public abstract class Equation {
      */
     protected static void requireOperandInRange(int value, String name) {
         if (!Limits.isInRange(value)) {
-            throw new IllegalArgumentException(name + "必须是 1~99 之间的正整数，当前为 " + value);
+            throw new IllegalArgumentException(name + "必须是 " + Limits.MIN_OPERAND + "~" + Limits.MAX_OPERAND
+                    + " 之间的正整数，当前为 " + value);
         }
     }
 
