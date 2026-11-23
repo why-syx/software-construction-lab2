@@ -1,0 +1,117 @@
+@startuml uml_model
+!pragma layout smetana
+skinparam dpi 200
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+skinparam classFontSize 12
+skinparam classAttributeFontSize 10
+skinparam arrowFontSize 10
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam linetype polyline
+skinparam nodesep 22
+skinparam ranksep 28
+skinparam classBackgroundColor #FFFFFF
+skinparam interfaceBackgroundColor #E8F1FB
+skinparam abstractBackgroundColor #EAF7EA
+skinparam ArrowColor #46536B
+skinparam classBorderColor #7C8AA5
+hide empty members
+hide circle
+
+title （a）模型层：运算符、表达式与算式
+
+interface Operation <<接口>> {
+  +symbol() : String
+  +precedence() : int
+  +apply(left : int, right : int) : int
+}
+
+abstract class AbstractBinaryOperation {
+  -symbol : String
+  -precedence : int
+  +apply(left : int, right : int) : int
+  #doApply(left : int, right : int) : int
+}
+
+class Addition
+class Subtraction
+class Multiplication
+class Division
+
+class Operations <<工具类>> {
+  +all() : List<Operation>
+  +of(symbol : char) : Operation
+}
+
+interface Expression <<接口>> {
+  +evaluate() : int
+  +evaluationTrace() : List<Integer>
+  +toInfix() : String
+}
+
+class ConstantExpression {
+  -value : int
+  +evaluate() : int
+}
+
+class BinaryExpression {
+  -operation : Operation
+  -left : Expression
+  -right : Expression
+  +evaluate() : int
+  +toInfix() : String
+}
+
+abstract class Equation {
+  -expression : Expression
+  -canonicalKey : String
+  +getAnswer() : int
+  +getText() : String
+  +getTrace() : List<Integer>
+}
+
+class TwoOperandEquation {
+  -left : int
+  -right : int
+  -operation : Operation
+}
+
+class ThreeOperandEquation {
+  -first : int
+  -second : int
+  -third : int
+  -firstOperation : Operation
+  -secondOperation : Operation
+}
+
+class ExpressionCanonicalizer <<工具类>> {
+  +canonicalize(expression : Expression) : String
+}
+
+Operation <|.. AbstractBinaryOperation
+AbstractBinaryOperation <|-- Addition
+AbstractBinaryOperation <|-- Subtraction
+AbstractBinaryOperation <|-- Multiplication
+AbstractBinaryOperation <|-- Division
+
+Expression <|.. ConstantExpression
+Expression <|.. BinaryExpression
+
+Equation <|-- TwoOperandEquation
+Equation <|-- ThreeOperandEquation
+
+BinaryExpression o-- Expression : left / right
+Equation o-- Expression : expression
+BinaryExpression ..> Operation : 使用
+Equation ..> ExpressionCanonicalizer : 生成去重键
+Equation ..> Operation : 按优先级求值
+Operations ..> Operation : 创建单例
+
+note right of Equation
+  构造即校验：求值轨迹中的
+  每一个值都必须满足
+  0 < 值 < 100，且除法整除。
+end note
+
+@enduml

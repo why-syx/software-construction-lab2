@@ -1,0 +1,32 @@
+# ---- 构建产物 ----
+target/
+out/
+bin/
+build/
+*.class
+*.jar
+*.war
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# ---- 运行产物 ----
+*.csv
+!docs/**/*.csv
+*.log
+*.tmp
+
+# ---- 提交物（报告、压缩包由本地生成，不纳入源码仓库） ----
+542413320648吴昊阳/
+
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db
+desktop.ini

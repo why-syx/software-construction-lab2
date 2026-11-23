@@ -1,0 +1,270 @@
+@startuml uml_class_diagram_full
+!pragma layout smetana
+set namespaceSeparator none
+skinparam dpi 180
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+skinparam classFontSize 12
+skinparam classAttributeFontSize 10
+skinparam classAttributeFontStyle normal
+skinparam arrowFontSize 10
+skinparam packageFontSize 12
+skinparam packageTitleFontSize 12
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam linetype polyline
+skinparam nodesep 28
+skinparam ranksep 34
+skinparam classBackgroundColor #FFFFFF
+skinparam interfaceBackgroundColor #E8F1FB
+skinparam abstractBackgroundColor #EAF7EA
+skinparam packageBackgroundColor #F8FAFD
+skinparam packageBorderColor #AEBBD1
+skinparam ArrowColor #46536B
+skinparam classBorderColor #7C8AA5
+hide empty members
+hide circle
+
+title 实验 2 练习题生成器 UML 类图
+
+package "com.exercise.common" #F8FAFD {
+  class Limits <<工具类>> {
+    +MIN_OPERAND : int = 1
+    +MAX_OPERAND : int = 99
+    +UPPER_BOUND : int = 100
+    +MIN_COLUMNS : int = 1
+    +MAX_COLUMNS : int = 10
+    +MAX_GENERATE_COUNT : int = 5000
+    +isInRange(value : int) : boolean
+  }
+}
+
+package "com.exercise.operation" #F8FAFD {
+  interface Operation <<接口>> {
+    +symbol() : String
+    +precedence() : int
+    +isCommutative() : boolean
+    +isAssociative() : boolean
+    +apply(left : int, right : int) : int
+  }
+
+  abstract class AbstractBinaryOperation {
+    -symbol : String
+    -precedence : int
+    -commutative : boolean
+    -associative : boolean
+    +apply(left : int, right : int) : int
+    #doApply(left : int, right : int) : int
+  }
+
+  class Addition
+  class Subtraction
+  class Multiplication
+  class Division
+
+  class Operations <<工具类>> {
+    +ADD : Operation
+    +SUBTRACT : Operation
+    +MULTIPLY : Operation
+    +DIVIDE : Operation
+    +all() : List<Operation>
+    +of(symbol : char) : Operation
+  }
+}
+
+package "com.exercise.expression" #F8FAFD {
+  interface Expression <<接口>> {
+    +evaluate() : int
+    +evaluationTrace() : List<Integer>
+    +toInfix() : String
+  }
+
+  class ConstantExpression {
+    -value : int
+    +value() : int
+    +evaluate() : int
+    +toInfix() : String
+  }
+
+  class BinaryExpression {
+    -operation : Operation
+    -left : Expression
+    -right : Expression
+    +evaluate() : int
+    +evaluationTrace() : List<Integer>
+    +toInfix() : String
+  }
+
+  class ExpressionCanonicalizer <<工具类>> {
+    +canonicalize(expression : Expression) : String
+  }
+}
+
+package "com.exercise.equation" #F8FAFD {
+  abstract class Equation {
+    -expression : Expression
+    -canonicalKey : String
+    +getAnswer() : int
+    +getText() : String
+    +getTrace() : List<Integer>
+    +getOperations() : List<Operation>
+    +getCanonicalKey() : String
+    +equals(other : Object) : boolean
+    +hashCode() : int
+  }
+
+  class TwoOperandEquation {
+    -left : int
+    -right : int
+    -operation : Operation
+  }
+
+  class ThreeOperandEquation {
+    -first : int
+    -second : int
+    -third : int
+    -firstOperation : Operation
+    -secondOperation : Operation
+    +buildExpression(...) : Expression
+  }
+}
+
+package "com.exercise.generator" #F8FAFD {
+  interface ExerciseGenerator <<接口>> {
+    +generate(count : int) : List<Equation>
+  }
+
+  class RandomExerciseGenerator {
+    -random : Random
+    +generate(count : int) : List<Equation>
+    -tryConstruct(first : Operation, second : Operation) : Equation
+    -sampleInnerPair(operation : Operation) : int[]
+  }
+
+  class ExerciseGenerationException <<异常>>
+}
+
+package "com.exercise.format" #F8FAFD {
+  interface ExerciseFormatter <<接口>> {
+    +format(equations : List<Equation>, columns : int, includeAnswer : boolean) : String
+  }
+
+  class ConsoleTableFormatter {
+    +format(equations : List<Equation>, columns : int, includeAnswer : boolean) : String
+  }
+}
+
+package "com.exercise.export" #F8FAFD {
+  interface ExerciseExporter <<接口>> {
+    +export(equations : List<Equation>, target : Path, config : ExportConfig) : Path
+  }
+
+  class CsvExporter {
+    +export(equations : List<Equation>, target : Path, config : ExportConfig) : Path
+  }
+
+  class ExportConfig <<record>> {
+    +columns : int
+    +includeAnswer : boolean
+  }
+}
+
+package "com.exercise.validation" #F8FAFD {
+  class InputValidator <<工具类>> {
+    +parseBoundedInt(raw : String, min : int, max : int) : int
+    +normalizeCsvFileName(raw : String) : String
+  }
+
+  class InputValidationException <<异常>>
+}
+
+package "com.exercise.ui" #F8FAFD {
+  class ConsoleApp {
+    -generator : ExerciseGenerator
+    -exporter : ExerciseExporter
+    -formatter : ExerciseFormatter
+    -count : int
+    -columns : int
+    -fileName : String
+    +run() : void
+    +main(args : String[]) : void
+  }
+
+  class InputReader {
+    -reader : BufferedReader
+    -out : PrintStream
+    +readInt(prompt : String, min : int, max : int) : int
+    +readYesNo(prompt : String, defaultValue : boolean) : boolean
+    +readFileName(prompt : String, defaultName : String) : String
+  }
+
+  class InputClosedException <<异常>>
+}
+
+' ---------- 继承 / 实现 ----------
+Operation <|.. AbstractBinaryOperation
+AbstractBinaryOperation <|-- Addition
+AbstractBinaryOperation <|-- Subtraction
+AbstractBinaryOperation <|-- Multiplication
+AbstractBinaryOperation <|-- Division
+
+Expression <|.. ConstantExpression
+Expression <|.. BinaryExpression
+
+Equation <|-- TwoOperandEquation
+Equation <|-- ThreeOperandEquation
+
+ExerciseGenerator <|.. RandomExerciseGenerator
+ExerciseFormatter <|.. ConsoleTableFormatter
+ExerciseExporter <|.. CsvExporter
+
+' ---------- 组合 / 聚合 ----------
+BinaryExpression "2" o-- "1" Expression : left / right
+Equation "1" o-- "1" Expression : expression
+ConsoleApp *-- InputReader : 构造并持有
+
+' ---------- 依赖 ----------
+Operations ..> Operation : 创建单例
+Operations ..> Addition
+BinaryExpression ..> Operation
+Equation ..> ExpressionCanonicalizer : 生成去重键
+Equation ..> Limits : 数值红线
+Equation ..> Operation : 校验/展示
+RandomExerciseGenerator ..> Equation : 创建
+RandomExerciseGenerator ..> Operations : 枚举运算符
+RandomExerciseGenerator ..> Limits : 数量上限
+RandomExerciseGenerator ..> ExerciseGenerationException : 抛出
+ThreeOperandEquation ..> Operation : 按优先级建树
+CsvExporter ..> Equation : 读取题目/答案
+CsvExporter ..> ExportConfig : 导出参数
+ConsoleApp ..> Equation : 持有题目列表
+ConsoleApp ..> ExportConfig : 导出参数
+ConsoleApp ..> InputClosedException : 捕获
+InputReader ..> InputValidator : 委托校验
+InputReader ..> InputClosedException : 抛出
+InputValidator ..> InputValidationException : 抛出
+
+note right of ConsoleApp
+  依赖倒转原则（DIP）：
+  只依赖 ExerciseGenerator / ExerciseExporter /
+  ExerciseFormatter 三个抽象接口，
+  具体实现由 main 注入。
+end note
+
+note bottom of Equation
+  构造即校验：
+  求值轨迹中的每一个值
+  都必须满足 0 < 值 < 100，
+  除法必须整除。
+end note
+
+legend right
+  |= 图例 |= 含义 |
+  | <|.. | 实现接口 |
+  | <|-- | 继承抽象类 |
+  | o-- | 聚合 |
+  | *-- | 组合 |
+  | ..> | 依赖 |
+endlegend
+
+@enduml

@@ -1,0 +1,100 @@
+@startuml uml_service
+!pragma layout smetana
+skinparam dpi 200
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+skinparam classFontSize 12
+skinparam classAttributeFontSize 10
+skinparam arrowFontSize 10
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam linetype polyline
+skinparam nodesep 22
+skinparam ranksep 28
+skinparam classBackgroundColor #FFFFFF
+skinparam interfaceBackgroundColor #E8F1FB
+skinparam abstractBackgroundColor #EAF7EA
+skinparam ArrowColor #46536B
+skinparam classBorderColor #7C8AA5
+hide empty members
+hide circle
+
+title （b）服务与交互层：生成、排版、导出与界面
+
+interface ExerciseGenerator <<接口>> {
+  +generate(count) : List<Equation>
+}
+
+class RandomExerciseGenerator {
+  -random : Random
+  +generate(count) : List<Equation>
+}
+
+interface ExerciseFormatter <<接口>> {
+  +format(equations, columns, includeAnswer) : String
+}
+
+class ConsoleTableFormatter {
+  +format(equations, columns, includeAnswer) : String
+}
+
+interface ExerciseExporter <<接口>> {
+  +export(equations, target, config) : Path
+}
+
+class CsvExporter {
+  +export(equations, target, config) : Path
+}
+
+class ExportConfig <<record>> {
+  +columns : int
+  +includeAnswer : boolean
+}
+
+class ConsoleApp {
+  -generator : ExerciseGenerator
+  -exporter : ExerciseExporter
+  -formatter : ExerciseFormatter
+  +run() : void
+  +main(args) : void
+}
+
+class InputReader {
+  +readInt(prompt, min, max) : int
+  +readFileName(prompt, defaultName) : String
+}
+
+class InputValidator <<工具类>> {
+  +parseBoundedInt(raw, min, max) : int
+  +normalizeCsvFileName(raw) : String
+}
+
+class Equation <<模型>> {
+  +getText() : String
+  +getAnswer() : int
+}
+
+ExerciseGenerator <|.. RandomExerciseGenerator
+ExerciseFormatter <|.. ConsoleTableFormatter
+ExerciseExporter <|.. CsvExporter
+
+ConsoleApp *-- InputReader : 构造并持有
+ConsoleApp --> ExerciseGenerator : 依赖抽象
+ConsoleApp --> ExerciseExporter : 依赖抽象
+ConsoleApp --> ExerciseFormatter : 依赖抽象
+ConsoleApp ..> ExportConfig : 导出参数
+ConsoleApp ..> Equation : 持有题目
+
+InputReader ..> InputValidator : 委托校验
+RandomExerciseGenerator ..> Equation : 创建
+CsvExporter ..> Equation : 读取题目
+CsvExporter ..> ExportConfig : 读取参数
+ConsoleTableFormatter ..> Equation : 读取题目
+
+note right of ConsoleApp
+  依赖倒转原则（DIP）：
+  只依赖三个抽象接口，
+  具体实现由 main 注入。
+end note
+
+@enduml

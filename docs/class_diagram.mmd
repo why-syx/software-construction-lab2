@@ -1,0 +1,181 @@
+classDiagram
+    direction LR
+
+    namespace com.exercise.operation {
+        class Operation {
+            <<interface>>
+            +symbol() String
+            +precedence() int
+            +isCommutative() boolean
+            +isAssociative() boolean
+            +apply(left, right) int
+        }
+        class AbstractBinaryOperation {
+            <<abstract>>
+            -String symbol
+            -int precedence
+            -boolean commutative
+            -boolean associative
+            +apply(left, right) int
+            #doApply(left, right) int
+        }
+        class Addition
+        class Subtraction
+        class Multiplication
+        class Division
+        class Operations {
+            <<utility>>
+            +Operation ADD
+            +Operation SUBTRACT
+            +Operation MULTIPLY
+            +Operation DIVIDE
+            +all() List
+            +of(char symbol) Operation
+        }
+    }
+
+    namespace com.exercise.expression {
+        class Expression {
+            <<interface>>
+            +evaluate() int
+            +evaluationTrace() List
+            +toInfix() String
+        }
+        class ConstantExpression {
+            -int value
+            +evaluate() int
+            +toInfix() String
+        }
+        class BinaryExpression {
+            -Operation operation
+            -Expression left
+            -Expression right
+            +evaluate() int
+            +evaluationTrace() List
+            +toInfix() String
+        }
+        class ExpressionCanonicalizer {
+            <<utility>>
+            +canonicalize(expression) String
+        }
+    }
+
+    namespace com.exercise.equation {
+        class Equation {
+            <<abstract>>
+            -Expression expression
+            -String canonicalKey
+            +getAnswer() int
+            +getText() String
+            +getTrace() List
+            +getOperations() List
+            +getCanonicalKey() String
+        }
+        class TwoOperandEquation {
+            -int left
+            -int right
+            -Operation operation
+        }
+        class ThreeOperandEquation {
+            -int first
+            -int second
+            -int third
+            -Operation firstOperation
+            -Operation secondOperation
+        }
+    }
+
+    namespace com.exercise.generator {
+        class ExerciseGenerator {
+            <<interface>>
+            +generate(count) List
+        }
+        class RandomExerciseGenerator {
+            -Random random
+            +generate(count) List
+        }
+        class ExerciseGenerationException
+    }
+
+    namespace com.exercise.format {
+        class ExerciseFormatter {
+            <<interface>>
+            +format(equations, columns, includeAnswer) String
+        }
+        class ConsoleTableFormatter {
+            +format(equations, columns, includeAnswer) String
+        }
+    }
+
+    namespace com.exercise.export {
+        class ExerciseExporter {
+            <<interface>>
+            +export(equations, target, config) Path
+        }
+        class CsvExporter {
+            +export(equations, target, config) Path
+        }
+        class ExportConfig {
+            <<record>>
+            +int columns
+            +boolean includeAnswer
+        }
+    }
+
+    namespace com.exercise.validation {
+        class InputValidator {
+            <<utility>>
+            +parseBoundedInt(raw, min, max) int
+            +normalizeCsvFileName(raw) String
+        }
+        class InputValidationException
+    }
+
+    namespace com.exercise.ui {
+        class ConsoleApp {
+            -ExerciseGenerator generator
+            -ExerciseExporter exporter
+            -ExerciseFormatter formatter
+            +run() void
+            +main(args) void
+        }
+        class InputReader {
+            +readInt(prompt, min, max) int
+            +readYesNo(prompt, defaultValue) boolean
+            +readFileName(prompt, defaultName) String
+        }
+        class InputClosedException
+    }
+
+    Operation <|.. AbstractBinaryOperation
+    AbstractBinaryOperation <|-- Addition
+    AbstractBinaryOperation <|-- Subtraction
+    AbstractBinaryOperation <|-- Multiplication
+    AbstractBinaryOperation <|-- Division
+
+    Expression <|.. ConstantExpression
+    Expression <|.. BinaryExpression
+
+    Equation <|-- TwoOperandEquation
+    Equation <|-- ThreeOperandEquation
+
+    ExerciseGenerator <|.. RandomExerciseGenerator
+    ExerciseFormatter <|.. ConsoleTableFormatter
+    ExerciseExporter <|.. CsvExporter
+
+    BinaryExpression o-- Expression : left/right
+    Equation o-- Expression : expression
+    ConsoleApp *-- InputReader
+
+    BinaryExpression ..> Operation
+    Equation ..> ExpressionCanonicalizer
+    RandomExerciseGenerator ..> Equation
+    RandomExerciseGenerator ..> Operations
+    CsvExporter ..> Equation
+    CsvExporter ..> ExportConfig
+    ConsoleApp ..> ExerciseGenerator
+    ConsoleApp ..> ExerciseExporter
+    ConsoleApp ..> ExerciseFormatter
+    ConsoleApp ..> ExportConfig
+    InputReader ..> InputValidator
+    Operations ..> Operation
